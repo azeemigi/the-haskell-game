@@ -7,9 +7,10 @@
 -}
 ---------------------------------------------------------
 
-module MeetingRoom where
+module VirtualHms.MeetingRoom where
 
 import Data.Map
+import Data.Maybe (fromJust)
 
 menuMap				:: Map Integer String
 menuMap 			= fromList [(1, "Start a session"), 
@@ -18,9 +19,12 @@ menuMap 			= fromList [(1, "Start a session"),
 					(4, "Request to join a session") , 
 					(5, "Leave Room")]
 
-functionMap		:: Map
+functionMap		:: Map Integer (Integer -> Bool)
 functionMap 		= fromList [(1, even),
-				(2, odd)]
+                        	    (2, odd),
+                                    (3, even),
+                                    (4, odd),
+                                    (5, even)]
 								
 
 printMenu		:: [(Integer, String)] -> IO ()
@@ -31,8 +35,8 @@ printMenu (x:xs)	=
 		printMenu xs
 
 
-meetingRoom		:: Map k a -> Map k a
-meetingRoom x		= x
+meetingRoom1		:: Map k a -> Map k a
+meetingRoom1 x		= x
 
 meetingRoom			:: IO ()
 meetingRoom			= 
@@ -53,9 +57,9 @@ subMenuRouter x		=
 	do
 		if (member (toInteger x) menuMap)
 			then
-				putStrLn (show x)
-			else 
-				putStrLn (show x)
+                              	putStrLn $ toString $ (fromJust $ Data.Map.lookup (toInteger x) functionMap) (toInteger x)
+			else     
+			        putStrLn "Invalid Selection"
 		
 -- Function: header
 {-
@@ -77,3 +81,16 @@ getOption 			=
 	do 
 		s <- getLine
 		return (read s :: Int)
+
+class Visible a where
+      toString  :: a -> String
+
+instance Visible Char where
+         toString a   = [a]
+
+instance Visible Bool where
+         toString True  = "True"
+         toString False = "False"
+
+instance Visible a => Visible [a] where
+         toString  = concat . Prelude.map toString
